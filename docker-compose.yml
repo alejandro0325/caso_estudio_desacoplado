@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  proyecto-backend:
+    container_name: caso_estudio_1_componente
+    restart: always
+    build: .
+    ports:
+      - "5001:3002"
+    links:
+      - mongo
+  mongo:
+    container_name: mongo_database_componente
+    image: mongo
+    ports:
+      - "27018:27017"
