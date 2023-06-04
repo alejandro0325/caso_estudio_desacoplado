@@ -1,4 +1,7 @@
 const express = require('express');
+const cluster = require('cluster');
+const os = require('os');
+const pid = process.pid;
 require('./database');
 
 const app = express();
@@ -58,6 +61,23 @@ app.delete('/cliente/:id', async (req, res) => {
   }
 });
 //Ponemos la aplicacion en escucha
-app.listen(3002, () => {
-  console.log('Servidor en ejecución en el puerto 3002');
-});
+//app.listen(3002, () => {
+//  console.log('Servidor en ejecución en el puerto 3002');
+//});
+
+//Ponemos la aplicacion en escucha escalandose
+if (cluster.isMaster) {
+  const cpus = os.cpus().length; //Aqui obtenemos la cantidad de cpus libres que hay en el equipo para por ahi lanzar el app
+
+  console.log(`obteniendo ${cpus} CPUs`);
+
+  for (let i = 0; i < cpus; i++) {
+    cluster.fork(); //Se crea varias instancias por cada cpu
+   // console.log(`Iniciando proceso ${pid}`);
+  }
+} else {
+  app.listen(3002, () => {
+    console.log('Servidor en ejecución en el puerto 3002');
+  });
+  console.log(`Iniciando proceso ${pid}`);
+}
